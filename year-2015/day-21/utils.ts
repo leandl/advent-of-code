@@ -1,7 +1,7 @@
 export type Boss = {
   life: number;
-  damage: 8;
-  armor: 2;
+  damage: number;
+  armor: number;
 };
 
 export type Item = {
