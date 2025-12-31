@@ -1,4 +1,5 @@
-import { getVisitedPositions, parseGrid } from "./utils";
+import { parseGrid } from "../../utils/parsers";
+import { getVisitedPositions } from "./utils";
 
 export function part1Run(lines: string[]): number {
   const grid = parseGrid(lines);

@@ -1,13 +1,12 @@
+import { Grid, parseGrid } from "../../utils/parsers";
 import {
   findGuard,
   Direction,
-  Grid,
   nextPosition,
   isOutOfBounds,
   hasObstacleAhead,
   rotateRight,
   getVisitedPositions,
-  parseGrid,
   GridObject,
 } from "./utils";
 

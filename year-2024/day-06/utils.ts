@@ -1,3 +1,5 @@
+import { Grid } from "../../utils/parsers";
+
 export enum Direction {
   UP = "UP",
   LEFT = "LEFT",
@@ -7,16 +9,10 @@ export enum Direction {
 
 export type PositionKey = `${number}:${number}`;
 
-export type Grid = string[][];
-
 export enum GridObject {
   EMPYT = ".",
   OBSTACLE = "#",
   VISITED = "X",
-}
-
-export function parseGrid(lines: string[]): Grid {
-  return lines.map((line) => line.split(""));
 }
 
 export function rotateRight(direction: Direction): Direction {

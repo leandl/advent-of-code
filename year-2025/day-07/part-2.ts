@@ -1,7 +1,8 @@
+import { Grid, parseGrid } from "../../utils/parsers";
 import { BEAM, EMPTY_CELL, findBeamSource, Position, SPLITTER } from "./utils";
 
 function countTimelines(
-  grid: string[][],
+  grid: Grid,
   pos: Position,
   memo: Map<string, number>
 ): number {
@@ -48,7 +49,7 @@ function countTimelines(
 }
 
 export function part2Run(lines: string[]): number {
-  const grid = lines.map((line) => Array.from(line));
+  const grid = parseGrid(lines);
   const source = findBeamSource(grid);
 
   const memo = new Map<string, number>();
