@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { md5 } from "../../utils/function";
 
 // const puzzleInput = "abcdef";
 const puzzleInput = "iwrupvqb";
@@ -8,7 +9,7 @@ function puzzleRun(puzzleInput: string, charStartWith: string) {
 
   while (true) {
     const texto = `${puzzleInput}${n}`;
-    const hash = createHash("md5").update(texto).digest("hex");
+    const hash = md5(texto);
 
     if (hash.startsWith(charStartWith)) {
       break;

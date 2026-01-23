@@ -1,3 +1,5 @@
+import { createHash } from "crypto";
+
 export function updateData<T extends Record<string, any>>(
   data: T,
   newData: Partial<T>
@@ -24,4 +26,8 @@ export function* getCombinations<T>(arr: T[], k: number): Generator<T[]> {
     indices[pos]++;
     for (let j = pos + 1; j < k; j++) indices[j] = indices[j - 1] + 1;
   }
+}
+
+export function md5(input: string): string {
+  return createHash("md5").update(input).digest("hex");
 }
