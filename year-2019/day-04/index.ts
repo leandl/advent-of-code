@@ -1,4 +1,3 @@
-import { readInputLines } from "../../utils/read-input";
 import { part1Run } from "./part-1";
 import { part2Run } from "./part-2";
 
