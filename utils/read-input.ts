@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 function getInputFilePath(
   dirYear: string,
   dirDay: string,
+  filename: string = "data",
   extension: string = ".txt"
 ) {
   const __filename = fileURLToPath(import.meta.url);
@@ -14,23 +15,28 @@ function getInputFilePath(
     "..",
     dirYear,
     dirDay,
-    `data${extension}`
+    `${filename}${extension}`
   );
   return filePath;
 }
 
 export async function readInputContent(
   dirYear: string,
-  dirDay: string
+  dirDay: string,
+  filename: string = "data"
 ): Promise<string> {
-  const filePath = getInputFilePath(dirYear, dirDay);
+  const filePath = getInputFilePath(dirYear, dirDay, filename);
   const file = Bun.file(filePath);
   const dataText = await file.text();
   return dataText;
 }
 
-export async function* readInputLineByLine(dirYear: string, dirDay: string) {
-  const filePath = getInputFilePath(dirYear, dirDay);
+export async function* readInputLineByLine(
+  dirYear: string,
+  dirDay: string,
+  filename: string = "data"
+) {
+  const filePath = getInputFilePath(dirYear, dirDay, filename);
   const file = Bun.file(filePath);
   const dataStream = file.stream(64);
   const dataReader = dataStream.getReader();
@@ -60,9 +66,10 @@ export async function* readInputLineByLine(dirYear: string, dirDay: string) {
 
 export async function readInputJSON(
   dirYear: string,
-  dirDay: string
+  dirDay: string,
+  filename: string = "data"
 ): Promise<any> {
-  const filePath = getInputFilePath(dirYear, dirDay, ".json");
+  const filePath = getInputFilePath(dirYear, dirDay, filename, ".json");
   const file = Bun.file(filePath);
   const dataText = await file.text();
   return JSON.parse(dataText);
@@ -70,9 +77,10 @@ export async function readInputJSON(
 
 export async function readInputLines(
   dirYear: string,
-  dirDay: string
+  dirDay: string,
+  filename: string = "data"
 ): Promise<string[]> {
-  const dataText = await readInputContent(dirYear, dirDay);
+  const dataText = await readInputContent(dirYear, dirDay, filename);
   const lines = dataText.split("\n");
   return lines;
 }
