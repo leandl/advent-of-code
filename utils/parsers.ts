@@ -1,6 +1,20 @@
-export type Grid = string[][];
+export type Grid<T = string> = T[][];
 
-export function parseGrid(lines: string[]): Grid {
+export function parseGrid(lines: string[]): Grid<string>;
+export function parseGrid<T>(
+  lines: string[],
+  parser: (char: string, row: number, col: number) => T
+): Grid<T>;
+export function parseGrid<T>(
+  lines: string[],
+  parser?: (char: string, row: number, col: number) => T
+): Grid<string> | Grid<T> {
+  if (parser) {
+    return lines.map((line, row) =>
+      Array.from(line).map((char, col) => parser(char, row, col))
+    );
+  }
+
   return lines.map((line) => Array.from(line));
 }
 
