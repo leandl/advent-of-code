@@ -3,15 +3,15 @@ export type Grid<T = string> = T[][];
 export function parseGrid(lines: string[]): Grid<string>;
 export function parseGrid<T>(
   lines: string[],
-  parser: (char: string, row: number, col: number) => T
+  parser: (char: string, row: number, col: number) => T,
 ): Grid<T>;
 export function parseGrid<T>(
   lines: string[],
-  parser?: (char: string, row: number, col: number) => T
+  parser?: (char: string, row: number, col: number) => T,
 ): Grid<string> | Grid<T> {
   if (parser) {
     return lines.map((line, row) =>
-      Array.from(line).map((char, col) => parser(char, row, col))
+      Array.from(line).map((char, col) => parser(char, row, col)),
     );
   }
 
