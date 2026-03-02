@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 
 export function updateData<T extends Record<string, any>>(
   data: T,
-  newData: Partial<T>
+  newData: Partial<T>,
 ): T {
   return {
     ...data,
@@ -30,4 +30,15 @@ export function* getCombinations<T>(arr: T[], k: number): Generator<T[]> {
 
 export function md5(input: string): string {
   return createHash("md5").update(input).digest("hex");
+}
+
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(
+  ab: (a: A) => B,
+  bc: (b: B) => C,
+  cd: (c: C) => D,
+): (a: A) => D;
+export function pipe(...fns: Function[]) {
+  return (value: any) => fns.reduce((acc, fn) => fn(acc), value);
 }
