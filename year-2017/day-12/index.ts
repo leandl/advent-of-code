@@ -3,11 +3,11 @@ import { part1Run } from "./part-1";
 import { part2Run } from "./part-2";
 import { parseProgramGraph } from "./utils";
 
-const inputContent = await readInputLines("year-2017", "day-12", "data");
-// const inputContent = await readInputLines("year-2017", "day-12", "example");
+const lines = await readInputLines("year-2017", "day-12", "data");
+// const lines = await readInputLines("year-2017", "day-12", "example");
 
-const resultPart1 = part1Run(parseProgramGraph(inputContent));
+const resultPart1 = part1Run(parseProgramGraph(lines));
 console.log("Result Part 1: ", resultPart1);
 
-const resultPart2 = part2Run(parseProgramGraph(inputContent));
+const resultPart2 = part2Run(parseProgramGraph(lines));
 console.log("Result Part 2: ", resultPart2);
