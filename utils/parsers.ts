@@ -27,3 +27,7 @@ export function parseNumbers(data: string[] | string): number[] {
 
   return data.split(",").map(Number);
 }
+
+export function parseList(data: string): string[] {
+  return data.split(",");
+}
