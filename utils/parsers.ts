@@ -18,6 +18,24 @@ export function parseGrid<T>(
   return lines.map((line) => Array.from(line));
 }
 
+export type GridFactory<T = string> = () => Grid<T>;
+
+export function createGridFactory(lines: string[]): GridFactory<string>;
+export function createGridFactory<T>(
+  lines: string[],
+  parser: (char: string, row: number, col: number) => T,
+): GridFactory<T>;
+export function createGridFactory<T>(
+  lines: string[],
+  parser?: (char: string, row: number, col: number) => T,
+): GridFactory<string> | GridFactory<T> {
+  if (parser) {
+    return (() => parseGrid(lines, parser)) as GridFactory<T>;
+  }
+
+  return (() => parseGrid(lines)) as GridFactory<string>;
+}
+
 export function parseNumbers(str: string): number[];
 export function parseNumbers(lines: string[]): number[];
 export function parseNumbers(data: string[] | string): number[] {
