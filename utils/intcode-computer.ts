@@ -36,6 +36,10 @@ export class IntcodeComputer {
     throw new Error("Invalid write mode");
   }
 
+  isHalted(): boolean {
+    return this.halted;
+  }
+
   run(io: IntcodeIO): void {
     while (!this.halted) {
       const instruction = this.get(this.ip);
@@ -120,5 +124,94 @@ export class IntcodeComputer {
           throw new Error(`Unknown opcode ${opcode}`);
       }
     }
+  }
+
+  runUntilOutput(io: IntcodeIO): number | null {
+    while (!this.halted) {
+      const instruction = this.get(this.ip);
+      const opcode = instruction % 100;
+
+      const modes = Math.floor(instruction / 100)
+        .toString()
+        .padStart(3, "0")
+        .split("")
+        .reverse()
+        .map(Number);
+
+      switch (opcode) {
+        case 1:
+          this.set(
+            this.getWriteAddr(modes[2], 3),
+            this.getParam(modes[0], 1) + this.getParam(modes[1], 2),
+          );
+          this.ip += 4;
+          break;
+
+        case 2:
+          this.set(
+            this.getWriteAddr(modes[2], 3),
+            this.getParam(modes[0], 1) * this.getParam(modes[1], 2),
+          );
+          this.ip += 4;
+          break;
+
+        case 3:
+          this.set(this.getWriteAddr(modes[0], 1), io.input());
+          this.ip += 2;
+          break;
+
+        case 4: {
+          const out = this.getParam(modes[0], 1);
+          this.ip += 2;
+          return out; // 🔥 PARA AQUI
+        }
+
+        case 5:
+          if (this.getParam(modes[0], 1) !== 0) {
+            this.ip = this.getParam(modes[1], 2);
+          } else {
+            this.ip += 3;
+          }
+          break;
+
+        case 6:
+          if (this.getParam(modes[0], 1) === 0) {
+            this.ip = this.getParam(modes[1], 2);
+          } else {
+            this.ip += 3;
+          }
+          break;
+
+        case 7:
+          this.set(
+            this.getWriteAddr(modes[2], 3),
+            this.getParam(modes[0], 1) < this.getParam(modes[1], 2) ? 1 : 0,
+          );
+          this.ip += 4;
+          break;
+
+        case 8:
+          this.set(
+            this.getWriteAddr(modes[2], 3),
+            this.getParam(modes[0], 1) === this.getParam(modes[1], 2) ? 1 : 0,
+          );
+          this.ip += 4;
+          break;
+
+        case 9:
+          this.relativeBase += this.getParam(modes[0], 1);
+          this.ip += 2;
+          break;
+
+        case 99:
+          this.halted = true;
+          return null;
+
+        default:
+          throw new Error(`Unknown opcode ${opcode}`);
+      }
+    }
+
+    return null;
   }
 }

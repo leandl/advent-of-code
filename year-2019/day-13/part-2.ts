@@ -1,4 +1,4 @@
-import { IntcodeComputer } from "./utils";
+import { IntcodeComputer } from "../../utils/intcode-computer";
 
 export function part2Run(program: number[]) {
   const memory = [...program];

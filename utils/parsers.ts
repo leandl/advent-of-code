@@ -36,16 +36,19 @@ export function createGridFactory<T>(
   return (() => parseGrid(lines)) as GridFactory<string>;
 }
 
-export function parseNumbers(str: string): number[];
+export function parseNumbers(str: string, separator?: string): number[];
 export function parseNumbers(lines: string[]): number[];
-export function parseNumbers(data: string[] | string): number[] {
+export function parseNumbers(
+  data: string[] | string,
+  separator: string = ",",
+): number[] {
   if (Array.isArray(data)) {
     return data.map(Number);
   }
 
-  return data.split(",").map(Number);
+  return data.split(separator).map(Number);
 }
 
-export function parseList(data: string): string[] {
-  return data.split(",");
+export function parseList(data: string, separator: string = ","): string[] {
+  return data.split(separator);
 }

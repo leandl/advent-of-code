@@ -1,4 +1,4 @@
-import { IntcodeComputer, IntcodeIO } from "./utils";
+import { IntcodeComputer } from "../../utils/intcode-computer";
 
 export function part2Run(program: number[]) {
   const computer = new IntcodeComputer(program);
@@ -15,7 +15,7 @@ export function part2Run(program: number[]) {
 
   let outputs: number[] = [];
 
-  const io: IntcodeIO = {
+  computer.run({
     input: () => panels.get(key()) ?? 0,
     output: (value: number) => {
       outputs.push(value);
@@ -38,11 +38,7 @@ export function part2Run(program: number[]) {
         if (dir === 3) x--;
       }
     },
-  };
-
-  while (!computer.halted) {
-    computer.run(io);
-  }
+  });
 
   const coords = [...panels.keys()].map((k) => k.split(",").map(Number));
 
