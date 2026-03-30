@@ -1,0 +1,15 @@
+import { runSpringdroid } from "./utils";
+
+export function part1Run(program: number[]) {
+  const script = [
+    "NOT A J",
+    "NOT B T",
+    "OR T J",
+    "NOT C T",
+    "OR T J",
+    "AND D J",
+    "WALK",
+  ];
+
+  return runSpringdroid(program, script);
+}
