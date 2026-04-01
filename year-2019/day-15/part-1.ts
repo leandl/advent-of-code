@@ -50,12 +50,11 @@ export function part1Run(program: number[]): number {
 
   const io = {
     input: () => inputQueue.shift()!,
-    output: (_: number) => {},
   };
 
   function move(dir: Direction): number {
     inputQueue.push(dir);
-    const res = computer.runUntilOutput(io);
+    const res = computer.runUntilOutput(io.input);
     if (res === null) throw new Error("Program halted unexpectedly");
     return res;
   }

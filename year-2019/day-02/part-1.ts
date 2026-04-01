@@ -1,9 +1,10 @@
-import { parseInput, restoreGravityAssist, runIntcode } from "./utils";
+import { IntcodeComputer } from "../../utils/new-intcode-computer";
+import { restoreGravityAssist } from "./utils";
 
-export function part1Run(input: string) {
-  const program = parseInput(input);
+export function part1Run(program: number[]) {
   const restoredProgram = restoreGravityAssist(program, 12, 2);
-  const result = runIntcode(restoredProgram);
+  const computer = new IntcodeComputer(restoredProgram);
 
-  return result[0];
+  const result = computer.run();
+  return result;
 }

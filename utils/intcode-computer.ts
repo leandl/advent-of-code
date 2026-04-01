@@ -4,202 +4,82 @@ export type IntcodeIO = {
 };
 
 export class IntcodeComputer {
-  private memory = new Map<number, number>();
-  private ip = 0;
-  private relativeBase = 0;
-  private halted = false;
+  memory: number[];
+  ip = 0;
+  base = 0;
+  halted = false;
 
   constructor(program: number[]) {
-    program.forEach((v, i) => this.memory.set(i, v));
+    this.memory = [...program, ...new Array(50_000).fill(0)];
   }
 
-  private get(addr: number): number {
-    return this.memory.get(addr) ?? 0;
-  }
-
-  private set(addr: number, value: number) {
-    this.memory.set(addr, value);
-  }
-
-  private getParam(mode: number, offset: number): number {
-    const val = this.get(this.ip + offset);
-    if (mode === 0) return this.get(val);
-    if (mode === 1) return val;
-    if (mode === 2) return this.get(this.relativeBase + val);
-    throw new Error("Invalid mode");
-  }
-
-  private getWriteAddr(mode: number, offset: number): number {
-    const val = this.get(this.ip + offset);
-    if (mode === 0) return val;
-    if (mode === 2) return this.relativeBase + val;
-    throw new Error("Invalid write mode");
-  }
-
-  isHalted(): boolean {
+  isHalted() {
     return this.halted;
   }
 
-  run(io: IntcodeIO): void {
+  runUntilOutput(input: IntcodeIO["input"]): number | null {
+    const mem = this.memory;
+
     while (!this.halted) {
-      const instruction = this.get(this.ip);
-      const opcode = instruction % 100;
+      const instr = mem[this.ip];
+      const op = instr % 100;
 
-      const modes = Math.floor(instruction / 100)
-        .toString()
-        .padStart(3, "0")
-        .split("")
-        .reverse()
-        .map(Number);
+      const m1 = Math.floor(instr / 100) % 10;
+      const m2 = Math.floor(instr / 1000) % 10;
+      const m3 = Math.floor(instr / 10000) % 10;
 
-      switch (opcode) {
-        case 1: // add
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) + this.getParam(modes[1], 2),
-          );
-          this.ip += 4;
-          break;
+      const p1 = mem[this.ip + 1];
+      const p2 = mem[this.ip + 2];
+      const p3 = mem[this.ip + 3];
 
-        case 2: // multiply
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) * this.getParam(modes[1], 2),
-          );
-          this.ip += 4;
-          break;
+      const v1 = m1 === 0 ? mem[p1] : m1 === 1 ? p1 : mem[this.base + p1];
 
-        case 3: // input
-          this.set(this.getWriteAddr(modes[0], 1), io.input());
-          this.ip += 2;
-          break;
+      const v2 = m2 === 0 ? mem[p2] : m2 === 1 ? p2 : mem[this.base + p2];
 
-        case 4: // output
-          io.output(this.getParam(modes[0], 1));
-          this.ip += 2;
-          break;
+      const a3 = m3 === 0 ? p3 : this.base + p3;
 
-        case 5: // jump-if-true
-          if (this.getParam(modes[0], 1) !== 0) {
-            this.ip = this.getParam(modes[1], 2);
-          } else {
-            this.ip += 3;
-          }
-          break;
-
-        case 6: // jump-if-false
-          if (this.getParam(modes[0], 1) === 0) {
-            this.ip = this.getParam(modes[1], 2);
-          } else {
-            this.ip += 3;
-          }
-          break;
-
-        case 7: // less than
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) < this.getParam(modes[1], 2) ? 1 : 0,
-          );
-          this.ip += 4;
-          break;
-
-        case 8: // equals
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) === this.getParam(modes[1], 2) ? 1 : 0,
-          );
-          this.ip += 4;
-          break;
-
-        case 9: // adjust relative base
-          this.relativeBase += this.getParam(modes[0], 1);
-          this.ip += 2;
-          break;
-
-        case 99:
-          this.halted = true;
-          break;
-
-        default:
-          throw new Error(`Unknown opcode ${opcode}`);
-      }
-    }
-  }
-
-  runUntilOutput(io: IntcodeIO): number | null {
-    while (!this.halted) {
-      const instruction = this.get(this.ip);
-      const opcode = instruction % 100;
-
-      const modes = Math.floor(instruction / 100)
-        .toString()
-        .padStart(3, "0")
-        .split("")
-        .reverse()
-        .map(Number);
-
-      switch (opcode) {
+      switch (op) {
         case 1:
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) + this.getParam(modes[1], 2),
-          );
+          mem[a3] = v1 + v2;
           this.ip += 4;
           break;
 
         case 2:
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) * this.getParam(modes[1], 2),
-          );
+          mem[a3] = v1 * v2;
           this.ip += 4;
           break;
 
-        case 3:
-          this.set(this.getWriteAddr(modes[0], 1), io.input());
+        case 3: {
+          const addr = m1 === 0 ? p1 : this.base + p1;
+          mem[addr] = input();
           this.ip += 2;
           break;
-
-        case 4: {
-          const out = this.getParam(modes[0], 1);
-          this.ip += 2;
-          return out; // 🔥 PARA AQUI
         }
 
+        case 4:
+          this.ip += 2;
+          return v1;
+
         case 5:
-          if (this.getParam(modes[0], 1) !== 0) {
-            this.ip = this.getParam(modes[1], 2);
-          } else {
-            this.ip += 3;
-          }
+          this.ip = v1 !== 0 ? v2 : this.ip + 3;
           break;
 
         case 6:
-          if (this.getParam(modes[0], 1) === 0) {
-            this.ip = this.getParam(modes[1], 2);
-          } else {
-            this.ip += 3;
-          }
+          this.ip = v1 === 0 ? v2 : this.ip + 3;
           break;
 
         case 7:
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) < this.getParam(modes[1], 2) ? 1 : 0,
-          );
+          mem[a3] = v1 < v2 ? 1 : 0;
           this.ip += 4;
           break;
 
         case 8:
-          this.set(
-            this.getWriteAddr(modes[2], 3),
-            this.getParam(modes[0], 1) === this.getParam(modes[1], 2) ? 1 : 0,
-          );
+          mem[a3] = v1 === v2 ? 1 : 0;
           this.ip += 4;
           break;
 
         case 9:
-          this.relativeBase += this.getParam(modes[0], 1);
+          this.base += v1;
           this.ip += 2;
           break;
 
@@ -208,10 +88,20 @@ export class IntcodeComputer {
           return null;
 
         default:
-          throw new Error(`Unknown opcode ${opcode}`);
+          throw new Error("bad opcode " + op);
       }
     }
 
     return null;
+  }
+
+  // opcional (mantido compatível com sua API antiga)
+  run(io: IntcodeIO): void {
+    while (!this.halted) {
+      const out = this.runUntilOutput(io.input);
+      if (out !== null) {
+        io.output(out);
+      }
+    }
   }
 }
