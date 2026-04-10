@@ -48,4 +48,8 @@ export class MinHeap<T> {
       i = smallest;
     }
   }
+
+  isEmpty() {
+    return this.length === 0;
+  }
 }
