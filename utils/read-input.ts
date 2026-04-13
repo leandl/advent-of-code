@@ -5,82 +5,71 @@ function getInputFilePath(
   dirYear: string,
   dirDay: string,
   filename: string = "data",
-  extension: string = ".txt"
+  extension: string = ".txt",
 ) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
-  const filePath = path.join(
-    __dirname,
-    "..",
-    dirYear,
-    dirDay,
-    `${filename}${extension}`
-  );
-  return filePath;
+  return path.join(__dirname, "..", dirYear, dirDay, `${filename}${extension}`);
 }
 
 export async function readInputContent(
   dirYear: string,
   dirDay: string,
-  filename: string = "data"
+  filename: string = "data",
 ): Promise<string> {
   const filePath = getInputFilePath(dirYear, dirDay, filename);
-  const file = Bun.file(filePath);
-  const dataText = await file.text();
-  return dataText;
+  return await Bun.file(filePath).text();
 }
 
 export async function* readInputLineByLine(
   dirYear: string,
   dirDay: string,
-  filename: string = "data"
-) {
+  filename: string = "data",
+): AsyncGenerator<string> {
   const filePath = getInputFilePath(dirYear, dirDay, filename);
+
   const file = Bun.file(filePath);
-  const dataStream = file.stream(64);
-  const dataReader = dataStream.getReader();
+  const stream = file.stream(); // <- sem buffer fixo
+  const reader = stream.getReader();
+
   const decoder = new TextDecoder();
 
-  let partialLine = "";
+  let buffer = "";
+
   while (true) {
-    const { value, done } = await dataReader.read();
-    if (done) {
-      break;
-    }
+    const { value, done } = await reader.read();
+    if (done) break;
 
-    const chunk = decoder.decode(value);
-    const lines = (partialLine + chunk).split(/\r?\n/);
+    buffer += decoder.decode(value);
 
-    partialLine = lines.pop() ?? "";
+    const lines = buffer.split(/\r?\n/);
+    buffer = lines.pop() ?? "";
 
     for (const line of lines) {
       yield line;
     }
   }
 
-  if (partialLine) {
-    yield partialLine;
+  if (buffer.length > 0) {
+    yield buffer;
   }
 }
 
-export async function readInputJSON(
+export async function readInputJSON<T = unknown>(
   dirYear: string,
   dirDay: string,
-  filename: string = "data"
-): Promise<any> {
+  filename: string = "data",
+): Promise<T> {
   const filePath = getInputFilePath(dirYear, dirDay, filename, ".json");
-  const file = Bun.file(filePath);
-  const dataText = await file.text();
-  return JSON.parse(dataText);
+  return JSON.parse(await Bun.file(filePath).text());
 }
 
 export async function readInputLines(
   dirYear: string,
   dirDay: string,
-  filename: string = "data"
+  filename: string = "data",
 ): Promise<string[]> {
-  const dataText = await readInputContent(dirYear, dirDay, filename);
-  const lines = dataText.split("\n");
-  return lines;
+  const text = await readInputContent(dirYear, dirDay, filename);
+  return text.split(/\r?\n/);
 }
