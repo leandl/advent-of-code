@@ -1,16 +1,19 @@
 export class Memory {
-  private memory = new Uint8Array(0x10000); // 64KB
+  private memory = new Array();
 
   read(addr: number): number {
-    return this.memory[addr];
+    // const value = this.memory[addr] ?? 0;
+    // console.log(`READ memory[${addr}] = ${value}`);
+    return this.memory[addr] ?? 0;
   }
 
   write(addr: number, value: number) {
+    // console.log(`WRITE memory[${addr}] = ${value}`);
     this.memory[addr] = value;
   }
 
-  load(program: number[], startAddress: number = 0) {
-    this.memory.set(program, startAddress);
+  load(program: number[]) {
+    this.memory = [...program];
   }
 
   reset() {

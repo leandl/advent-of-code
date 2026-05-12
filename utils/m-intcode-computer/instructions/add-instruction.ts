@@ -1,14 +1,18 @@
 import type { IntcodeComputer } from "..";
-import { Addressing } from "../addressing";
+import { Addressing, ParameterModes } from "../addressing";
+import { CPURegister } from "../registers";
 import type { Instruction } from "./instruction";
 
 export class AddInstruction implements Instruction {
-  execute(cpu: IntcodeComputer): void {
-    const addressValue1 = Addressing.immediate(cpu);
-    const addressValue2 = Addressing.immediate(cpu);
-    const addressOutput = Addressing.immediate(cpu);
+  size = 4;
 
-    const result = cpu.read(addressValue1) + cpu.read(addressValue2);
-    cpu.write(addressOutput, result);
+  execute(cpu: IntcodeComputer, modes: number[]) {
+    const a = Addressing.read(cpu, 1, modes[0]);
+    const b = Addressing.read(cpu, 2, modes[1]);
+    const addr = Addressing.write(cpu, 3, modes[2]);
+
+    cpu.write(addr, a + b);
+
+    cpu.registers[CPURegister.PROGRAM_COUNTER] += this.size;
   }
 }

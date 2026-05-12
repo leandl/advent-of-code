@@ -1,13 +1,20 @@
-import { Addressing } from "./addressing";
-import { instructions } from "./factories/all-instruction";
+import { decode } from "./addressing";
+import { instructions } from "./factories/instructions/all-instruction";
+import { IODevice } from "./io-device";
 import { Memory } from "./memory";
-import { Opcode } from "./opcode";
-import { Registers } from "./registers";
+import { CPURegister, Registers } from "./registers";
 
 export class IntcodeComputer {
   private instructions = instructions;
   private memory = new Memory();
   registers = new Registers();
+
+  constructor(
+    program: number[],
+    public io: IODevice,
+  ) {
+    this.memory.load(program);
+  }
 
   read(addr: number): number {
     return this.memory.read(addr);
@@ -17,17 +24,25 @@ export class IntcodeComputer {
     this.memory.write(addr, data);
   }
 
-  loadProgram(program: number[], startAddress?: number) {
-    this.memory.load(program, startAddress);
-  }
-
   step() {
-    const address = Addressing.immediate(this);
-    const opcode = this.read(address) as Opcode;
+    if (this.registers[CPURegister.IS_HALT]) return;
+
+    const pc = this.registers.PC;
+    const raw = this.read(pc);
+
+    const { opcode, modes } = decode(raw);
 
     const instruction = this.instructions[opcode];
     if (!instruction) {
       throw new Error(`Unknown opcode: ${opcode}`);
+    }
+
+    instruction.execute(this, modes);
+  }
+
+  run() {
+    while (!this.registers[CPURegister.IS_HALT]) {
+      this.step();
     }
   }
 }

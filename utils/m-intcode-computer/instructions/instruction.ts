@@ -1,5 +1,7 @@
 import type { IntcodeComputer } from "..";
+import { ParameterModes } from "../addressing";
 
 export interface Instruction {
-  execute(cpu: IntcodeComputer): void;
+  size: number;
+  execute(cpu: IntcodeComputer, modes: ParameterModes): void;
 }
