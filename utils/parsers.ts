@@ -49,6 +49,9 @@ export function parseNumbers(
   return data.split(separator).map(Number);
 }
 
-export function parseList(data: string, separator: string = ","): string[] {
+export function parseList(
+  data: string,
+  separator: string | RegExp = ",",
+): string[] {
   return data.split(separator);
 }
