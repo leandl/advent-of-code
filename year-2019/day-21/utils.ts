@@ -5,7 +5,7 @@ export function runSpringdroid(program: number[], script: string[]): number {
 
   const inputQueue: number[] = [];
 
-  // converter script → ASCII
+  // script → ASCII
   for (const line of script) {
     for (const ch of line) {
       inputQueue.push(ch.charCodeAt(0));
@@ -16,17 +16,28 @@ export function runSpringdroid(program: number[], script: string[]): number {
   let inputIndex = 0;
   let lastOutput = 0;
 
-  computer.run({
-    input: () => inputQueue[inputIndex++],
-    output: (value: number) => {
-      lastOutput = value;
+  while (true) {
+    const res = computer.run();
 
-      // debug opcional (ASCII)
-      if (value < 128) {
-        // console.log(String.fromCharCode(value));
+    if (res.type === "output") {
+      lastOutput = res.value;
+
+      // debug opcional ASCII
+      if (res.value < 128) process.stdout.write(String.fromCharCode(res.value));
+    }
+
+    if (res.type === "need_input") {
+      const value = inputQueue[inputIndex++];
+      if (value === undefined) {
+        throw new Error("Input esgotado");
       }
-    },
-  });
+      computer.io.provideInput(value);
+    }
+
+    if (res.type === "halt") {
+      break;
+    }
+  }
 
   return lastOutput;
 }

@@ -23,12 +23,25 @@ export function part2Run(program: number[]): number {
   let inputIndex = 0;
   let lastOutput = 0;
 
-  computer.run({
-    input: () => inputQueue[inputIndex++],
-    output: (value) => {
-      lastOutput = value;
-    },
-  });
+  while (true) {
+    const res = computer.run();
+
+    if (res.type === "output") {
+      lastOutput = res.value;
+    }
+
+    if (res.type === "need_input") {
+      const value = inputQueue[inputIndex++];
+      if (value === undefined) {
+        throw new Error("Input esgotado");
+      }
+      computer.io.provideInput(value);
+    }
+
+    if (res.type === "halt") {
+      break;
+    }
+  }
 
   return lastOutput;
 }

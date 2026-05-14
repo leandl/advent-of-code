@@ -1,4 +1,4 @@
-import { IntcodeComputer, IntcodeIO } from "../../utils/intcode-computer";
+import { IntcodeComputer } from "../../utils/intcode-computer";
 
 export function part1Run(program: number[]) {
   const computer = new IntcodeComputer(program);
@@ -14,10 +14,14 @@ export function part1Run(program: number[]) {
 
   let outputs: number[] = [];
 
-  computer.run({
-    input: () => panels.get(key()) ?? 0,
-    output: (value: number) => {
-      outputs.push(value);
+  // primeira entrada (painel inicial)
+  computer.provideInput(0);
+
+  while (true) {
+    const res = computer.run();
+
+    if (res.type === "output") {
+      outputs.push(res.value);
 
       if (outputs.length === 2) {
         const [color, turn] = outputs;
@@ -28,18 +32,29 @@ export function part1Run(program: number[]) {
         painted.add(key());
 
         // girar
-        if (turn === 0)
-          dir = (dir + 3) % 4; // left
-        else dir = (dir + 1) % 4; // right
+        if (turn === 0) dir = (dir + 3) % 4;
+        else dir = (dir + 1) % 4;
 
         // mover
         if (dir === 0) y--;
         if (dir === 1) x++;
         if (dir === 2) y++;
         if (dir === 3) x--;
+
+        // próximo input = cor do painel atual
+        computer.provideInput(panels.get(key()) ?? 0);
       }
-    },
-  });
+    }
+
+    if (res.type === "need_input") {
+      // garante input sempre disponível
+      computer.provideInput(panels.get(key()) ?? 0);
+    }
+
+    if (res.type === "halt") {
+      break;
+    }
+  }
 
   return painted.size;
 }

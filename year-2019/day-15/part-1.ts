@@ -42,21 +42,32 @@ export function part1Run(program: number[]): number {
   const computer = new IntcodeComputer(program);
 
   const map = new Map<string, number>();
-  // 0 = wall, 1 = empty, 2 = oxygen
-
   let oxygen: Position | null = null;
 
-  let inputQueue: number[] = [];
+  let x = 0;
+  let y = 0;
 
-  const io = {
-    input: () => inputQueue.shift()!,
-  };
+  const start: Position = { x: 0, y: 0 };
+  map.set(key(0, 0), 1);
 
-  function move(dir: Direction): number {
-    inputQueue.push(dir);
-    const res = computer.runUntilOutput(io.input);
-    if (res === null) throw new Error("Program halted unexpectedly");
-    return res;
+  function runMove(dir: Direction): number {
+    computer.io.provideInput(dir);
+
+    while (true) {
+      const res = computer.run();
+
+      if (res.type === "output") {
+        return res.value;
+      }
+
+      if (res.type === "need_input") {
+        continue;
+      }
+
+      if (res.type === "halt") {
+        throw new Error("Program halted unexpectedly");
+      }
+    }
   }
 
   function dfs(pos: Position) {
@@ -69,23 +80,26 @@ export function part1Run(program: number[]): number {
       const k = key(next.x, next.y);
       if (map.has(k)) continue;
 
-      const status = move(dir);
+      const status = runMove(dir);
       map.set(k, status);
 
-      if (status === 0) continue; // wall
+      if (status === 0) continue;
 
       if (status === 2) {
         oxygen = next;
       }
 
+      x = next.x;
+      y = next.y;
+
       dfs(next);
 
-      move(OPPOSITE[dir]);
+      runMove(OPPOSITE[dir]);
+
+      x = pos.x;
+      y = pos.y;
     }
   }
-
-  const start: Position = { x: 0, y: 0 };
-  map.set(key(0, 0), 1);
 
   dfs(start);
 

@@ -1,12 +1,15 @@
-import { IntcodeComputer } from "../../utils/m-intcode-computer";
-import { NullIO } from "../../utils/m-intcode-computer/factories/io/null-io";
+import { IntcodeComputer } from "../../utils/intcode-computer";
+
 import { restoreGravityAssist } from "./utils";
 
 export function part1Run(program: number[]) {
   const restoredProgram = restoreGravityAssist(program, 12, 2);
-  const computer = new IntcodeComputer(restoredProgram, new NullIO());
+  const computer = new IntcodeComputer(restoredProgram);
 
-  computer.run();
+  while (true) {
+    const response = computer.run();
+    if (response.type === "halt") break;
+  }
 
   return computer.read(0);
 }

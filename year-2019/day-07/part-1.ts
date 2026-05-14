@@ -10,12 +10,26 @@ export function part1Run(program: number[]) {
 
     for (let i = 0; i < 5; i++) {
       const computer = new IntcodeComputer(program);
+      const phase = phases[i];
 
-      const inputs = [phases[i], signal];
+      computer.provideInput(phase);
 
-      const output = computer.runUntilOutput(() => inputs.shift()!);
+      while (true) {
+        const res = computer.run();
 
-      signal = output!;
+        if (res.type === "need_input") {
+          computer.provideInput(signal);
+          continue;
+        }
+
+        if (res.type === "output") {
+          signal = res.value;
+        }
+
+        if (res.type === "halt") {
+          break;
+        }
+      }
     }
 
     maxSignal = Math.max(maxSignal, signal);

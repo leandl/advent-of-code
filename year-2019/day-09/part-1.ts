@@ -4,19 +4,19 @@ import { BoostParams } from "./utils";
 export function part1Run({ program, input }: BoostParams) {
   const computer = new IntcodeComputer(program);
 
-  const inputs = [input];
+  computer.provideInput(input);
+
   let lastOutput: number | null = null;
 
-  while (!computer.isHalted()) {
-    const output = computer.runUntilOutput(() => {
-      if (inputs.length === 0) {
-        throw new Error("Input esperado");
-      }
-      return inputs.shift()!;
-    });
+  while (true) {
+    const res = computer.run();
 
-    if (output !== null) {
-      lastOutput = output;
+    if (res.type === "output") {
+      lastOutput = res.value;
+    }
+
+    if (res.type === "halt") {
+      break;
     }
   }
 

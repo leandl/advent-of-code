@@ -11,4 +11,6 @@ export enum Opcode {
 
   LESS_THAN = 7,
   EQUALS = 8,
+
+  ADJUST_RELATIVE_BASE = 9,
 }

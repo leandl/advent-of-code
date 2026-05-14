@@ -2,12 +2,25 @@ import { IntcodeComputer } from "../../utils/intcode-computer";
 
 export function part1Run(program: number[]) {
   const computer = new IntcodeComputer(program);
+
   const outputs: number[] = [];
 
-  computer.run({
-    input: () => 0, // nunca usado
-    output: (v) => outputs.push(v),
-  });
+  while (true) {
+    const res = computer.run();
+
+    if (res.type === "output") {
+      outputs.push(res.value);
+    }
+
+    if (res.type === "halt") {
+      break;
+    }
+
+    // Day 13 não precisa de input manual
+    if (res.type === "need_input") {
+      computer.provideInput(0);
+    }
+  }
 
   let blocks = 0;
 

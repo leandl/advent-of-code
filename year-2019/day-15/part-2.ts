@@ -14,17 +14,27 @@ export function part2Run(program: number[]): number {
   const map = new Map<string, number>(); // 0 wall, 1 empty, 2 oxygen
   let oxygen: Position | null = null;
 
-  let inputQueue: number[] = [];
+  const start: Position = { x: 0, y: 0 };
+  map.set(key(0, 0), 1);
 
-  const io = {
-    input: () => inputQueue.shift()!,
-  };
+  function runMove(dir: Direction): number {
+    computer.io.provideInput(dir);
 
-  function move(dir: Direction): number {
-    inputQueue.push(dir);
-    const res = computer.runUntilOutput(io.input);
-    if (res === null) throw new Error("Program halted unexpectedly");
-    return res;
+    while (true) {
+      const res = computer.run();
+
+      if (res.type === "output") {
+        return res.value;
+      }
+
+      if (res.type === "need_input") {
+        continue;
+      }
+
+      if (res.type === "halt") {
+        throw new Error("Program halted unexpectedly");
+      }
+    }
   }
 
   function dfs(pos: Position) {
@@ -35,7 +45,7 @@ export function part2Run(program: number[]): number {
       const k = key(next.x, next.y);
       if (map.has(k)) continue;
 
-      const status = move(dir);
+      const status = runMove(dir);
       map.set(k, status);
 
       if (status === 0) continue;
@@ -47,12 +57,9 @@ export function part2Run(program: number[]): number {
       dfs(next);
 
       // backtrack
-      move(OPPOSITE[dir]);
+      runMove(OPPOSITE[dir]);
     }
   }
-
-  const start: Position = { x: 0, y: 0 };
-  map.set(key(0, 0), 1);
 
   dfs(start);
 

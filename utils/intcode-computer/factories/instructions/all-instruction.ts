@@ -7,6 +7,7 @@ import { InputInstruction } from "../../instructions/input-instruction";
 import { OutputInstruction } from "../../instructions/output-instruction";
 import { JumpConditionInstruction } from "../../instructions/jump-condition-instruction";
 import { CompareInstruction } from "../../instructions/compate-instruction";
+import { AdjustRelativeBaseInstruction } from "../../instructions/adjust-relative-base-instruction";
 
 export const instructions: Record<Opcode, Instruction> = {
   [Opcode.HALT]: new HaltInstruction(),
@@ -22,4 +23,6 @@ export const instructions: Record<Opcode, Instruction> = {
 
   [Opcode.LESS_THAN]: new CompareInstruction((a, b) => a < b),
   [Opcode.EQUALS]: new CompareInstruction((a, b) => a === b),
+
+  [Opcode.ADJUST_RELATIVE_BASE]: new AdjustRelativeBaseInstruction(),
 };

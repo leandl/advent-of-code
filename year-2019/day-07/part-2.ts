@@ -6,38 +6,40 @@ export function part2Run(program: number[]) {
   let maxSignal = -Infinity;
 
   for (const phases of phaseSettings) {
-    // cria os 5 amplificadores
     const computers = phases.map(() => new IntcodeComputer(program));
 
-    // fila de input para cada amp
-    const queues: number[][] = phases.map((phase) => [phase]);
+    // setup phases
+    for (let i = 0; i < 5; i++) {
+      computers[i].provideInput(phases[i]);
+    }
 
-    // primeiro input do sistema
-    queues[0].push(0);
-
+    computers[0].provideInput(0);
+    let halted = new Array(5).fill(false);
     let lastOutput = 0;
 
-    // loop até o último computador parar
-    while (!computers[4].isHalted()) {
+    while (!halted.every(Boolean)) {
       for (let i = 0; i < 5; i++) {
-        const computer = computers[i];
-        const queue = queues[i];
+        if (halted[i]) continue;
 
-        const output = computer.runUntilOutput(() => {
-          if (queue.length === 0) {
-            throw new Error(`Amp ${i} tentou ler sem input`);
-          }
-          return queue.shift()!;
-        });
+        const comp = computers[i];
 
-        // se produziu output
-        if (output !== null) {
+        const res = comp.run();
+
+        if (res.type === "need_input") {
+          continue;
+        }
+
+        if (res.type === "output") {
           const next = (i + 1) % 5;
-          queues[next].push(output);
+          computers[next].provideInput(res.value);
 
           if (i === 4) {
-            lastOutput = output;
+            lastOutput = res.value;
           }
+        }
+
+        if (res.type === "halt") {
+          halted[i] = true;
         }
       }
     }

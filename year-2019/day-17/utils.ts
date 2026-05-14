@@ -25,14 +25,27 @@ export const OPPOSITE: Record<Direction, Direction> = {
   [Direction.EAST]: Direction.WEST,
 };
 
-export function getGrid(program: number[]): Grid<string> {
+export function getGrid(program: number[]): string[][] {
   const computer = new IntcodeComputer([...program]);
+
   const output: number[] = [];
 
-  computer.run({
-    input: () => 0,
-    output: (value) => output.push(value),
-  });
+  while (true) {
+    const res = computer.run();
+
+    if (res.type === "output") {
+      output.push(res.value);
+    }
+
+    if (res.type === "need_input") {
+      // muitos programas ASCII não precisam input, mas a VM exige segurança
+      computer.io.provideInput(0);
+    }
+
+    if (res.type === "halt") {
+      break;
+    }
+  }
 
   const text = output.map((c) => String.fromCharCode(c)).join("");
 
