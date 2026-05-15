@@ -1,5 +1,3 @@
-// day12-part2.ts
-
 import { Grid } from "../../utils/parsers";
 
 export function part2Run(grid: Grid<string>): number {
